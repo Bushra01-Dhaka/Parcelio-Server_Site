@@ -41,10 +41,28 @@ async function run() {
       res.send(users);
     });
 
-     app.get("/parcels", async (req, res) => {
-      const users = await parcelCollection.find().toArray();
-      res.send(users);
-    });
+    // Parcels API
+    app.get("/parcels", async (req, res) => {
+  try {
+    const email = req.query.email;
+
+    // build query dynamically
+    let query = {};
+    if (email) {
+      query = { created_by: email };
+    }
+
+    const parcels = await parcelCollection
+      .find(query)
+      .sort({ createdAt: -1 }) // latest first
+      .toArray();
+
+    res.send(parcels);
+  } catch (error) {
+    res.status(500).send({ message: "Server error", error });
+  }
+});
+
 
     app.post("/parcels", async(req, res) => {
         try{
